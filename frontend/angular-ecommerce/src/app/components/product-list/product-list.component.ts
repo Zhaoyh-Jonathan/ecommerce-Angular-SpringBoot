@@ -12,6 +12,7 @@ export class ProductListComponent implements OnInit {
 
   products!: Product[];
   currentCategoryId!: number;
+  searchMode!: boolean;
 
   constructor(private productListService: ProductService,
               private route: ActivatedRoute) { }
@@ -24,6 +25,32 @@ export class ProductListComponent implements OnInit {
 
   listProducts() {
 
+    this.searchMode = this.route.snapshot.paramMap.has('keyword');
+
+    if (this.searchMode) {
+      this.handleSearchProducts();
+    }
+    else {
+      this.handleListProducts();
+    }
+
+  }
+
+  handleSearchProducts() {
+
+    // Notice the exclamation mark "!" at the end, to prevent strict ts report "Type 'string | null' is not assignable to type 'string'."
+    // const theKeyword: string = this.route.snapshot.paramMap.get('keyword'); 
+    const theKeyword: string = this.route.snapshot.paramMap.get('keyword')!; 
+
+    // now search for the products using keyword
+    this.productListService.searchProducts(theKeyword).subscribe(
+      data => {
+        this.products = data;
+      }
+    );
+  }
+
+  handleListProducts() {
     // check if "id" parameter is available
     const hasCategoryId: boolean = this.route.snapshot.paramMap.has('id');
 
